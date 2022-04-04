@@ -1,24 +1,21 @@
 package org.drivemybox.interview.greeting;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/greeting")
 public class GreetingController {
 
-    private final GreetingService greetingService;
+    private final Greeter greeter;
 
     @Autowired
-    public GreetingController(GreetingService greetingService) {
-        this.greetingService = greetingService;
+    public GreetingController(Greeter greeter) {
+        this.greeter = greeter;
     }
 
     @GetMapping
     public String greet(@RequestParam(name = "name") String name) {
-        return greetingService.greet(name);
+        return greeter.greet(name);
     }
 }

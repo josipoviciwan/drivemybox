@@ -1,10 +1,12 @@
 package org.drivemybox.interview.greeting;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GreetingService {
+@ConditionalOnProperty(value = "greeting.service.type", havingValue = "default", matchIfMissing = true)
+public class GreetingDefaultService implements Greeter {
 
     @Value("${greeting.service.default.greet}")
     private Greeting greeting;
