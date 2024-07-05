@@ -71,7 +71,8 @@ project into the `target` directory.
 ### Run
 
 If everything went fine, a .jar should be in the `target` directory. You can run that .jar file with the `java -jar`
-command. You can add configuration properties as follows `java -jar target/drivemybox-interview.jar --greeting.service.default.greet=<value>`
+command. You can add configuration properties as
+follows `java -jar target/drivemybox-interview.jar --greeting.service.default.greet=<value>`
 
 ### Test
 
@@ -90,3 +91,24 @@ the following command `sudo docker ps`. When you want to stop the application fr
 where `id` is the one matching your application listed in the `sudo docker ps`
 output table. You can choose a profile for the docker application by adding `-e "SPRING_PROFILES_ACTIVE=<profile>"`
 to the docker run command, where `profile` is one of `dev, test, prod`.
+
+## Docker image for AWS Lambda
+
+Use the command `mvn compile dependency:copy-dependencies -DincludeScope=runtime -f pom.xml` in order to copy the aws lambda required
+runtime files. Then build the docker image and deploy it to ECR. Create a new Lambda from the uploaded image. Create a new API gateway as a
+trigger for the lambda. The resource points to the endpoint, and the method MUST BE A PROXY METHOD for lambda. Otherwise, the AWS
+dependencies will complain about the message format since it only works with AWS Proxy Messages. It's also important that dependencies are
+minimal, in order to keep the startup time under 10 seconds, because 10 seconds is the max duration of the INIT phase of AWS Lambda. If it
+takes more than 10 seconds the lambda will respond with an error. 
+
+Used docs:
+- [SpringBoot3 example](https://github.com/aws/serverless-java-container/tree/main/samples/springboot3/pet-store/src/main/java/com/amazonaws/serverless/sample/springboot3)
+- [AWS Docker base images](https://docs.aws.amazon.com/lambda/latest/dg/java-image.html#java-image-clients)
+- [Dockerfile config](https://gallery.ecr.aws/lambda/java)
+- [Minimizing loading times by using maven-shade-plugin](https://medium.com/@pratik.sathe1987/deploying-spring-boot-microservice-on-aws-lambda-part-2-10eecd566fce)
+- [Lambda invocations](https://docs.aws.amazon.com/lambda/latest/dg/urls-invocation.html)
+- [AwsProxyResponse requirement](https://stackoverflow.com/a/78521623)
+- [Possibly useful Rust example](https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples/http-basic-lambda)
+- [Local testing setup](https://github.com/aws/aws-lambda-java-libs/tree/main/aws-lambda-java-runtime-interface-client)
+- [AWS SAM config for automated deployment](https://www.baeldung.com/spring-boot-aws-lambda#limitations-of-using-spring-in-a-lambda)
+
